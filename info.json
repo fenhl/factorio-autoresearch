@@ -1,9 +1,9 @@
 {
-    "name": "auto-research (fixed + re-published)",
-    "version": "0.18.0",
+    "name": "some-autoresearch",
+    "version": "0.18.1",
     "title": "Auto Research (fixed + re-published)",
     "author": "Someone (originally canidae)",
-    "homepage": "https://git.somenet.org/pub/jan/factorio_some-autoresearch.git",
+    "homepage": "https://git.somenet.org/factorio/some-autoresearch.git",
     "description": "Automates research. Toggle GUI with Shift+T (customizable).",
     "dependencies": ["base"],
     "factorio_version": "0.18"
