@@ -90,7 +90,8 @@ data.raw["gui-style"].default["auto_research_sprite"] = {
     top_padding = 0,
     right_padding = 0,
     bottom_padding = 0,
-    left_padding = 0
+    left_padding = 0,
+    stretch_image_to_widget_size = true
 }
 
 data:extend({
