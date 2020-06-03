@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.18.2
+Date: 2020-06-03
+
+  Changed:
+    - Hopefully fixed crash for Angels Bio Processing. Thanks Energistics.
+    - Fixed too big icons in the auto-research-list.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.18.1
 Date: 2020-05-05
 
