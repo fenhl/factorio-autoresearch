@@ -295,25 +295,14 @@ gui = {
                 name = "research_strategies_outer",
                 direction = "horizontal"
             }
-            local research_strategies_left = research_strategies_outer.add{
-                type = "flow",
-                style = "auto_research_list_flow",
-                name = "research_strategies_left",
-                direction = "vertical"
-            }
-            research_strategies_left.add{type = "radiobutton", name = "auto_research_research_fast", caption = {"auto_research_gui.research_fast"}, tooltip = {"auto_research_gui.research_fast_tooltip"}, state = config.research_strategy == "fast"}
-            research_strategies_left.add{type = "radiobutton", name = "auto_research_research_cheap", caption = {"auto_research_gui.research_cheap"}, tooltip = {"auto_research_gui.research_cheap_tooltip"}, state = config.research_strategy == "cheap"}
-            research_strategies_left.add{type = "radiobutton", name = "auto_research_research_balanced", caption = {"auto_research_gui.research_balanced"}, tooltip = {"auto_research_gui.research_balanced_tooltip"}, state = config.research_strategy == "balanced"}
-            local research_strategies_right = research_strategies_outer.add{
-                type = "flow",
-                style = "auto_research_list_flow",
-                name = "research_strategies_right",
-                direction = "vertical"
-            }
-            research_strategies_right.style.left_padding = 15
-            research_strategies_right.add{type = "radiobutton", name = "auto_research_research_slow", caption = {"auto_research_gui.research_slow"}, tooltip = {"auto_research_gui.research_slow_tooltip"}, state = config.research_strategy == "slow"}
-            research_strategies_right.add{type = "radiobutton", name = "auto_research_research_expensive", caption = {"auto_research_gui.research_expensive"}, tooltip = {"auto_research_gui.research_expensive_tooltip"}, state = config.research_strategy == "expensive"}
-            research_strategies_right.add{type = "radiobutton", name = "auto_research_research_random", caption = {"auto_research_gui.research_random"}, tooltip = {"auto_research_gui.research_random_tooltip"}, state = config.research_strategy == "random"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_fast", caption = {"auto_research_gui.research_fast"}, tooltip = {"auto_research_gui.research_fast_tooltip"}, state = config.research_strategy == "fast"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_slow", caption = {"auto_research_gui.research_slow"}, tooltip = {"auto_research_gui.research_slow_tooltip"}, state = config.research_strategy == "slow"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_cheap", caption = {"auto_research_gui.research_cheap"}, tooltip = {"auto_research_gui.research_cheap_tooltip"}, state = config.research_strategy == "cheap"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_expensive", caption = {"auto_research_gui.research_expensive"}, tooltip = {"auto_research_gui.research_expensive_tooltip"}, state = config.research_strategy == "expensive"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_balanced", caption = {"auto_research_gui.research_balanced"}, tooltip = {"auto_research_gui.research_balanced_tooltip"}, state = config.research_strategy == "balanced"}
+            research_strategies_outer.add{type = "radiobutton", name = "auto_research_research_random", caption = {"auto_research_gui.research_random"}, tooltip = {"auto_research_gui.research_random_tooltip"}, state = config.research_strategy == "random"}
+
+            research_strategies_outer.style.horizontal_spacing = 6
 
             -- allowed ingredients
             frameflow.add{
@@ -344,6 +333,7 @@ gui = {
             prioritized.style.top_padding = 5
             prioritized.style.bottom_padding = 5
             prioritized.style.maximal_height = 127
+            prioritized.style.minimal_width = 440
             -- draw prioritized tech list
             gui.updateTechnologyList(player.gui.top.auto_research_gui.flow.prioritized, config.prioritized_techs, player, true)
 
@@ -362,6 +352,8 @@ gui = {
             deprioritized.style.top_padding = 5
             deprioritized.style.bottom_padding = 5
             deprioritized.style.maximal_height = 127
+            deprioritized.style.minimal_width = 440
+
             -- draw deprioritized tech list
             gui.updateTechnologyList(player.gui.top.auto_research_gui.flow.deprioritized, config.deprioritized_techs, player)
 
@@ -382,19 +374,16 @@ gui = {
                 name = "auto_research_search_text",
                 tooltip = {"auto_research_gui.search_tooltip"}
             }
-            local searchoptionsflow = frameflow.add{
-                type = "flow",
-                name = "searchoptionsflow",
-                style = "auto_research_tech_flow",
-                direction = "horizontal"
-            }
-            searchoptionsflow.add{
+            searchflow.add{
                 type = "checkbox",
                 name = "auto_research_ingredients_filter_search_results",
                 caption = {"auto_research_gui.ingredients_filter_search_results"},
                 tooltip = {"auto_research_gui.ingredients_filter_search_results_tooltip"},
                 state = config.filter_search_results or false
             }
+            searchflow.style.horizontal_spacing = 6
+            searchflow.style.vertical_align = "center"
+
             local search = frameflow.add{
                 type = "scroll-pane",
                 name = "search",
@@ -404,6 +393,8 @@ gui = {
             search.style.top_padding = 5
             search.style.bottom_padding = 5
             search.style.maximal_height = 127
+            search.style.minimal_width = 440
+
             -- draw search result list
             gui.updateSearchResult(player, "")
         end
@@ -442,12 +433,12 @@ gui = {
             end
         elseif string.find(name, "auto_research_research") then
             config.research_strategy = string.match(name, "^auto_research_research_(.*)$")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_left.auto_research_research_fast.state = (config.research_strategy == "fast")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_left.auto_research_research_cheap.state = (config.research_strategy == "cheap")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_left.auto_research_research_balanced.state = (config.research_strategy == "balanced")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_right.auto_research_research_slow.state = (config.research_strategy == "slow")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_right.auto_research_research_expensive.state = (config.research_strategy == "expensive")
-            player.gui.top.auto_research_gui.flow.research_strategies_outer.research_strategies_right.auto_research_research_random.state = (config.research_strategy == "random")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_fast.state = (config.research_strategy == "fast")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_cheap.state = (config.research_strategy == "cheap")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_balanced.state = (config.research_strategy == "balanced")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_slow.state = (config.research_strategy == "slow")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_expensive.state = (config.research_strategy == "expensive")
+            player.gui.top.auto_research_gui.flow.research_strategies_outer.auto_research_research_random.state = (config.research_strategy == "random")
             -- start new research
             startNextResearch(force)
         else
@@ -455,7 +446,7 @@ gui = {
             if prefix == "allow_ingredient" then
                 config.allowed_ingredients[name] = not config.allowed_ingredients[name]
                 gui.updateAllowedIngredientsList(player.gui.top.auto_research_gui.flow.allowed_ingredients, player, config)
-                if player.gui.top.auto_research_gui.flow.searchoptionsflow.auto_research_ingredients_filter_search_results.state then
+                if player.gui.top.auto_research_gui.flow.searchflow.auto_research_ingredients_filter_search_results.state then
                     gui.updateSearchResult(player, player.gui.top.auto_research_gui.flow.searchflow.auto_research_search_text.text)
                 end
                 startNextResearch(force)
@@ -566,7 +557,7 @@ gui = {
             name = "flow",
             direction = "vertical"
         }
-        local ingredients_filter = player.gui.top.auto_research_gui.flow.searchoptionsflow.auto_research_ingredients_filter_search_results.state
+        local ingredients_filter = player.gui.top.auto_research_gui.flow.searchflow.auto_research_ingredients_filter_search_results.state
         local config = getConfig(player.force)
         local shown = 0
         text = string.lower(text)

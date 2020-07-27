@@ -1,10 +1,6 @@
 data.raw["gui-style"].default["auto_research_header_label"] = {
     type = "label_style",
     font_color = {r = .91764705882352941176, g = .85098039215686274509, b = .67450980392156862745},
-    font = "default-large-semibold",
-    top_padding = 0,
-    bottom_padding = 0,
-    left_padding = 0,
     right_padding = 6
 }
 
