@@ -130,7 +130,7 @@ function getPretechs(tech)
 end
 
 function canResearch(force, tech, config)
-    if not tech or tech.researched or not tech.enabled then
+    if not tech or tech.researched or not tech.enabled or tech.prototype.hidden then
         return false
     end
     for _, pretech in pairs(tech.prerequisites) do
