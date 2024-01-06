@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 2024-01-06
+
+  Changed:
+    - Added "sonaxaton-research-queue" and "factorio-research-queue" mods to incompat list due to https://mods.factorio.com/mod/some-autoresearch/discussion/659724b3423aabe1d569516f - if you are author of these mods and fix the issue, feel free to contact me and get removed from the incompat list.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2024-01-02
 
