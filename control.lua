@@ -1,15 +1,13 @@
-function getConfig(force, config_changed)
-    if not global.auto_research_config then
-        global.auto_research_config = {}
+local auto_research_config = {}
 
-        -- Disable Research Queue popup
-        if remote.interfaces.RQ and remote.interfaces.RQ["popup"] then
-            remote.call("RQ", "popup", false)
-        end
+function getConfig(force, config_changed)
+    -- Disable Research Queue popup
+    if remote.interfaces.RQ and remote.interfaces.RQ["popup"] then
+        remote.call("RQ", "popup", false)
     end
 
-    if not global.auto_research_config[force.name] then
-        global.auto_research_config[force.name] = {
+    if not auto_research_config[force.name] then
+        auto_research_config[force.name] = {
             prioritized_techs = {}, -- "prioritized" is "queued". kept for backwards compatability (because i'm lazy and don't want migration code)
             deprioritized_techs = {} -- "deprioritized" is "blacklisted". kept for backwards compatability (because i'm lazy and don't want migration code)
         }
@@ -27,27 +25,27 @@ function getConfig(force, config_changed)
     end
 
     -- set research strategy
-    global.auto_research_config[force.name].research_strategy = global.auto_research_config[force.name].research_strategy or "balanced"
+    auto_research_config[force.name].research_strategy = auto_research_config[force.name].research_strategy or "balanced"
 
-    if config_changed or not global.auto_research_config[force.name].allowed_ingredients or not global.auto_research_config[force.name].infinite_research then
+    if config_changed or not auto_research_config[force.name].allowed_ingredients or not auto_research_config[force.name].infinite_research then
         -- remember any old ingredients
         local old_ingredients = {}
-        if global.auto_research_config[force.name].allowed_ingredients then
-            for name, enabled in pairs(global.auto_research_config[force.name].allowed_ingredients) do
+        if auto_research_config[force.name].allowed_ingredients then
+            for name, enabled in pairs(auto_research_config[force.name].allowed_ingredients) do
                 old_ingredients[name] = enabled
             end
         end
         -- find all possible tech ingredients
         -- also scan for research that are infinite: techs that have no successor and tech.research_unit_count_formula is not nil
-        global.auto_research_config[force.name].allowed_ingredients = {}
-        global.auto_research_config[force.name].infinite_research = {}
+        auto_research_config[force.name].allowed_ingredients = {}
+        auto_research_config[force.name].infinite_research = {}
         local finite_research = {}
         for _, tech in pairs(force.technologies) do
             for _, ingredient in pairs(tech.research_unit_ingredients) do
-                global.auto_research_config[force.name].allowed_ingredients[ingredient.name] = (old_ingredients[ingredient.name] == nil or old_ingredients[ingredient.name])
+                auto_research_config[force.name].allowed_ingredients[ingredient.name] = (old_ingredients[ingredient.name] == nil or old_ingredients[ingredient.name])
             end
             if tech.research_unit_count_formula then
-                global.auto_research_config[force.name].infinite_research[tech.name] = tech
+                auto_research_config[force.name].infinite_research[tech.name] = tech
             end
             for _, pretech in pairs(tech.prerequisites) do
                 if pretech.enabled and not pretech.researched then
@@ -56,11 +54,11 @@ function getConfig(force, config_changed)
             end
         end
         for techname, _ in pairs(finite_research) do
-            global.auto_research_config[force.name].infinite_research[techname] = nil
+            auto_research_config[force.name].infinite_research[techname] = nil
         end
     end
 
-    return global.auto_research_config[force.name]
+    return auto_research_config[force.name]
 end
 
 function setAutoResearch(force, enabled)
@@ -69,7 +67,6 @@ function setAutoResearch(force, enabled)
     end
     local config = getConfig(force)
     config.enabled = enabled
-    force.research_queue_enabled = not enabled
 
     if enabled then
         -- start new research
@@ -219,7 +216,15 @@ function startNextResearch(force, override_spam_detection)
     end
 
     if next_research then
-        force.add_research(next_research)
+        local rq = {}
+        table.insert(rq, next_research)
+
+        for i=1,6 do
+          if force.research_queue[i] == nil then break end
+          table.insert(rq, force.research_queue[i])
+        end
+
+        force.research_queue = rq
     end
 end
 
@@ -502,7 +507,7 @@ gui = {
                 }
             end
             local sprite = "auto_research_tool_" .. ingredientname
-            if not player.gui.is_valid_sprite_path(sprite) then
+            if not helpers.is_valid_sprite_path(sprite) then
                 sprite = "auto_research_unknown"
             end
             ingredientflow.add{type = "sprite-button", style = "auto_research_sprite_button_toggle" .. (allowed and "_pressed" or ""), name = "auto_research_allow_ingredient-" .. ingredientname, tooltip = {"item-name." .. ingredientname}, sprite = sprite}
@@ -533,7 +538,7 @@ gui = {
                     entryflow.add{type = "label", style = "auto_research_tech_label", caption = tech.localised_name}
                     for _, ingredient in pairs(tech.research_unit_ingredients) do
                         local sprite = "auto_research_tool_" .. ingredient.name
-                        if not player.gui.is_valid_sprite_path(sprite) then
+                        if not helpers.is_valid_sprite_path(sprite) then
                             sprite = "auto_research_unknown"
                         end
                         entryflow.add{type = "sprite", style = "auto_research_sprite", sprite = sprite}
@@ -659,7 +664,7 @@ gui = {
                     entryflow.add{type = "label", style = "auto_research_tech_label", name = name, caption = tech.localised_name}
                     for _, ingredient in pairs(tech.research_unit_ingredients) do
                         local sprite = "auto_research_tool_" .. ingredient.name
-                        if not player.gui.is_valid_sprite_path(sprite) then
+                        if not helpers.is_valid_sprite_path(sprite) then
                             sprite = "auto_research_unknown"
                         end
                         entryflow.add{type = "sprite", style = "auto_research_sprite", sprite = sprite}

@@ -1,13 +1,13 @@
 {
     "name": "some-autoresearch",
-    "version": "1.1.4",
+    "version": "2.0.0",
     "title": "Auto Research (fixed + re-published)",
     "author": "Someone (originally canidae)",
     "homepage": "https://git.somenet.org/factorio/some-autoresearch.git",
     "description": "Automates research. Toggle GUI with Shift+T (customizable).",
-    "factorio_version": "1.1",
+    "factorio_version": "2.0",
     "dependencies": [
-        "base>=1.1.0",
+        "base>=2.0.0",
 
       "! factorio-research-queue",
       "! sonaxaton-research-queue"

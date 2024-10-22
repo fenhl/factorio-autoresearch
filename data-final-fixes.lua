@@ -1,15 +1,15 @@
 -- dynamically add sprites for tools (to display research ingredients)
 for _, tool in pairs(data.raw.tool) do
-    if tool.icon or tool.icons then
+    if tool.icon then
         data:extend({
             {
                 type = "sprite",
                 name = "auto_research_tool_" .. tool.name,
-                filename = tool.icon or (tool.icons[1] and tool.icons[1].icon) or nil,
+                filename = tool.icon or nil,
                 priority = "extra-high-no-scale",
-                width = tool.icon_size or (tool.icons[1].icon_size) or 32,
-                height = tool.icon_size or (tool.icons[1].icon_size) or 32,
-                scale = 32/(tool.icon_size or (tool.icons[1].icon_size) or 32)
+                width = tool.icon_size or 64,
+                height = tool.icon_size or 64,
+                scale = 64/(tool.icon_size or 64)
             }
         })
     end
