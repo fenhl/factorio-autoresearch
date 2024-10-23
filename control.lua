@@ -135,6 +135,9 @@ function canResearch(force, tech, config)
             return false
         end
     end
+    if #tech.research_unit_ingredients == 0 then
+        return false
+    end
     for _, ingredient in pairs(tech.research_unit_ingredients) do
         if not config.allowed_ingredients[ingredient.name] then
             return false
@@ -221,10 +224,14 @@ function startNextResearch(force, override_spam_detection)
         table.insert(rq, next_research)
 
         for i=1,6 do
-          if force.research_queue[i] == nil then break end
-          if not (force.current_research and config.allow_switching and i == 1) then
-            table.insert(rq, force.research_queue[i].name)
-          end
+            if force.research_queue[i] == nil then break end
+            if i == 1 then
+                if not (force.current_research and config.allow_switching) then
+                    table.insert(rq, force.research_queue[i].name)
+                end
+            else
+                table.insert(rq, force.research_queue[i].name)
+            end
         end
 
         force.research_queue = rq
