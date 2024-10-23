@@ -215,13 +215,14 @@ function startNextResearch(force, override_spam_detection)
         end
     end
 
+    -- keep queue, just put next_research at the start.
     if next_research then
         local rq = {}
         table.insert(rq, next_research)
 
         for i=1,6 do
           if force.research_queue[i] == nil then break end
-          table.insert(rq, force.research_queue[i])
+          table.insert(rq, force.research_queue[i].name)
         end
 
         force.research_queue = rq
@@ -577,7 +578,7 @@ gui = {
                 --     -- show techs that match by localised name
                 --     showtech = true
                 else
-                    for _, effect in pairs(tech.effects) do
+                    for _, effect in pairs(tech.prototype.effects) do
                         if string.find(effect.type, text, 1, true) then
                             -- show techs that match by effect type
                             showtech = true
@@ -589,7 +590,7 @@ gui = {
                             --     -- show techs that match by unlocked recipe localised name
                             --     showtech = true
                             else
-                                for _, product in pairs(game.recipe_prototypes[effect.recipe].products) do
+                                for _, product in pairs(prototypes.recipe[effect.recipe].products) do
                                     if string.find(product.name, text, 1, true) then
                                         -- show techs that match by unlocked recipe product name
                                         showtech = true
@@ -597,7 +598,7 @@ gui = {
                                     --     -- show techs that match by unlocked recipe product localised name
                                     --     showtech = true
                                     else
-                                        local prototype = game.item_prototypes[product.name]
+                                        local prototype = prototypes.item[product.name]
                                         if prototype then
                                             if prototype.place_result then
                                                 if string.find(prototype.place_result.name, text, 1, true) then
