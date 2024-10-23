@@ -1,13 +1,16 @@
-local auto_research_config = {}
 
 function getConfig(force, config_changed)
+    if not storage.auto_research_config then
+        storage.auto_research_config = {}
+    end
+
     -- Disable Research Queue popup
     if remote.interfaces.RQ and remote.interfaces.RQ["popup"] then
         remote.call("RQ", "popup", false)
     end
 
-    if not auto_research_config[force.name] then
-        auto_research_config[force.name] = {
+    if not storage.auto_research_config[force.name] then
+        storage.auto_research_config[force.name] = {
             prioritized_techs = {}, -- "prioritized" is "queued". kept for backwards compatability (because i'm lazy and don't want migration code)
             deprioritized_techs = {} -- "deprioritized" is "blacklisted". kept for backwards compatability (because i'm lazy and don't want migration code)
         }
@@ -25,27 +28,27 @@ function getConfig(force, config_changed)
     end
 
     -- set research strategy
-    auto_research_config[force.name].research_strategy = auto_research_config[force.name].research_strategy or "balanced"
+    storage.auto_research_config[force.name].research_strategy = storage.auto_research_config[force.name].research_strategy or "balanced"
 
-    if config_changed or not auto_research_config[force.name].allowed_ingredients or not auto_research_config[force.name].infinite_research then
+    if config_changed or not storage.auto_research_config[force.name].allowed_ingredients or not storage.auto_research_config[force.name].infinite_research then
         -- remember any old ingredients
         local old_ingredients = {}
-        if auto_research_config[force.name].allowed_ingredients then
-            for name, enabled in pairs(auto_research_config[force.name].allowed_ingredients) do
+        if storage.auto_research_config[force.name].allowed_ingredients then
+            for name, enabled in pairs(storage.auto_research_config[force.name].allowed_ingredients) do
                 old_ingredients[name] = enabled
             end
         end
         -- find all possible tech ingredients
         -- also scan for research that are infinite: techs that have no successor and tech.research_unit_count_formula is not nil
-        auto_research_config[force.name].allowed_ingredients = {}
-        auto_research_config[force.name].infinite_research = {}
+        storage.auto_research_config[force.name].allowed_ingredients = {}
+        storage.auto_research_config[force.name].infinite_research = {}
         local finite_research = {}
         for _, tech in pairs(force.technologies) do
             for _, ingredient in pairs(tech.research_unit_ingredients) do
-                auto_research_config[force.name].allowed_ingredients[ingredient.name] = (old_ingredients[ingredient.name] == nil or old_ingredients[ingredient.name])
+                storage.auto_research_config[force.name].allowed_ingredients[ingredient.name] = (old_ingredients[ingredient.name] == nil or old_ingredients[ingredient.name])
             end
             if tech.research_unit_count_formula then
-                auto_research_config[force.name].infinite_research[tech.name] = tech
+                storage.auto_research_config[force.name].infinite_research[tech.name] = tech
             end
             for _, pretech in pairs(tech.prerequisites) do
                 if pretech.enabled and not pretech.researched then
@@ -54,11 +57,11 @@ function getConfig(force, config_changed)
             end
         end
         for techname, _ in pairs(finite_research) do
-            auto_research_config[force.name].infinite_research[techname] = nil
+            storage.auto_research_config[force.name].infinite_research[techname] = nil
         end
     end
 
-    return auto_research_config[force.name]
+    return storage.auto_research_config[force.name]
 end
 
 function setAutoResearch(force, enabled)
