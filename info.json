@@ -1,6 +1,6 @@
 {
     "name": "some-autoresearch",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "title": "Auto Research (fixed + re-published)",
     "author": "Someone (originally canidae)",
     "homepage": "https://git.somenet.org/factorio/some-autoresearch.git",
@@ -9,7 +9,8 @@
     "dependencies": [
         "base>=2.0.0",
 
-      "! factorio-research-queue",
-      "! sonaxaton-research-queue"
+        "! auto-research",
+        "! factorio-research-queue",
+        "! sonaxaton-research-queue"
     ]
 }

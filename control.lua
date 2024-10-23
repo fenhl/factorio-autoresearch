@@ -222,7 +222,9 @@ function startNextResearch(force, override_spam_detection)
 
         for i=1,6 do
           if force.research_queue[i] == nil then break end
-          table.insert(rq, force.research_queue[i].name)
+          if not (force.current_research and config.allow_switching and i == 1) then
+            table.insert(rq, force.research_queue[i].name)
+          end
         end
 
         force.research_queue = rq
