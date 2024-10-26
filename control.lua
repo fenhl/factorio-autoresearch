@@ -224,11 +224,11 @@ function startNextResearch(force, override_spam_detection)
     -- keep queue, just put next_research at the start.
     if next_research then
         local rq = {}
-        table.insert(rq, next_research)
 
-        for i=1,6 do
+        -- manage last element of research queue
+        for i=1,7 do
             if force.research_queue[i] == nil then break end
-            if i == 1 then
+            if i == (#force.research_queue) then
                 if not (force.current_research and config.allow_switching) then
                     table.insert(rq, force.research_queue[i].name)
                 end
@@ -236,6 +236,7 @@ function startNextResearch(force, override_spam_detection)
                 table.insert(rq, force.research_queue[i].name)
             end
         end
+        table.insert(rq, next_research)
 
         force.research_queue = rq
     end
