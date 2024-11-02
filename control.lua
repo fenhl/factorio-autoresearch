@@ -582,7 +582,7 @@ gui = {
         text = string.lower(text)
         -- NOTICE: localised name matching does not work at present, pending unlikely changes to Factorio API
         for name, tech in pairs(player.force.technologies) do
-            if not tech.researched and tech.enabled then
+            if not tech.researched and tech.enabled and #tech.research_unit_ingredients > 0 then
                 local showtech = false
                 if string.find(string.lower(name), text, 1, true) then
                     -- show techs that match by name
