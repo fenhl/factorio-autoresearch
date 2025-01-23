@@ -20,11 +20,14 @@ function getConfig(force, config_changed)
         -- Disable queued only
         setQueuedOnly(force, false)
 
-        -- Allow switching research
-        setAllowSwitching(force, true)
+        -- Don't allow switching research
+        setAllowSwitching(force, false)
 
-        -- Print researched technology
-        setAnnounceCompletedResearch(force, true)
+        -- Don't print researched technology
+        setAnnounceCompletedResearch(force, false)
+
+        -- Deprioritize infinite tech
+        setDeprioritizeInfiniteTech(force, true)
     end
 
     -- set research strategy
