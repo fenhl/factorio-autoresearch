@@ -12,7 +12,8 @@ function getConfig(force, config_changed)
     if not storage.auto_research_config[force.name] then
         storage.auto_research_config[force.name] = {
             prioritized_techs = {}, -- "prioritized" is "queued". kept for backwards compatability (because i'm lazy and don't want migration code)
-            deprioritized_techs = {} -- "deprioritized" is "blacklisted". kept for backwards compatability (because i'm lazy and don't want migration code)
+            deprioritized_techs = {}, -- "deprioritized" is "blacklisted". kept for backwards compatability (because i'm lazy and don't want migration code)
+            announced_trigger_techs = {},
         }
         -- Enable Auto Research
         setAutoResearch(force, true)
@@ -28,6 +29,9 @@ function getConfig(force, config_changed)
 
         -- Deprioritize infinite tech
         setDeprioritizeInfiniteTech(force, true)
+
+        -- Announce available trigger technologies
+        setAnnounceNewTriggerTech(force, true)
     end
 
     -- set research strategy
@@ -117,6 +121,13 @@ function setDeprioritizeInfiniteTech(force, enabled)
     startNextResearch(force)
 end
 
+function setAnnounceNewTriggerTech(force, enabled)
+    if not force then
+        return
+    end
+    getConfig(force).announce_new_trigger_tech = enabled
+end
+
 function getPretechs(tech)
     local pretechs = {}
     pretechs[#pretechs + 1] = tech
@@ -148,6 +159,26 @@ function canResearch(force, tech, config)
         if not config.allowed_ingredients[ingredient.name] then
             return false
         end
+    end
+    for _, deprioritized in pairs(config.deprioritized_techs) do
+        if tech.name == deprioritized then
+            return false
+        end
+    end
+    return true
+end
+
+function isTriggerAvailable(force, tech, config)
+    if not tech or tech.researched or not tech.enabled or tech.prototype.hidden then
+        return false
+    end
+    for _, pretech in pairs(tech.prerequisites) do
+        if not pretech.researched then
+            return false
+        end
+    end
+    if tech.prototype.research_trigger == nil
+        return false
     end
     for _, deprioritized in pairs(config.deprioritized_techs) do
         if tech.name == deprioritized then
@@ -273,6 +304,15 @@ function onResearchFinished(event)
             force.print{"auto_research.announce_completed", event.research.localised_name, level}
         end
     end
+    -- announce new trigger tech
+    if config.announce_new_trigger_tech then
+        for name, tech in pairs(force.technologies) do
+            if config.announced_trigger_techs[name] == nil and isTriggerAvailable(force, tech, config) then
+                force.print{"auto_research.announce_new_trigger_tech", tech.localised_name}
+                config.announced_trigger_techs[name] = true
+            end
+        end
+    end
 
     startNextResearch(event.research.force)
 end
@@ -304,6 +344,7 @@ gui = {
             frameflow.add{type = "checkbox", name = "auto_research_allow_switching", caption = {"auto_research_gui.allow_switching"}, tooltip = {"auto_research_gui.allow_switching_tooltip"}, state = config.allow_switching or false}
             frameflow.add{type = "checkbox", name = "auto_research_announce_completed", caption = {"auto_research_gui.announce_completed"}, tooltip = {"auto_research_gui.announce_completed_tooltip"}, state = config.announce_completed or false}
             frameflow.add{type = "checkbox", name = "auto_research_deprioritize_infinite_tech", caption = {"auto_research_gui.deprioritize_infinite_tech"}, tooltip = {"auto_research_gui.deprioritize_infinite_tech_tooltip"}, state = config.deprioritize_infinite_tech or false}
+            frameflow.add{type = "checkbox", name = "auto_research_announce_new_trigger_tech", caption = {"auto_research_gui.announce_new_trigger_tech"}, tooltip = {"auto_research_gui.announce_new_trigger_tech_tooltip"}, state = config.announce_new_trigger_tech or false}
 
             -- research strategy
             frameflow.add{
@@ -436,6 +477,8 @@ gui = {
             setAnnounceCompletedResearch(force, event.element.state)
         elseif name == "auto_research_deprioritize_infinite_tech" then
             setDeprioritizeInfiniteTech(force, event.element.state)
+        elseif name == "auto_research_announce_new_trigger_tech" then
+            setAnnounceNewTriggerTech(force, event.element.state)
         elseif name == "auto_research_ingredients_filter_search_results" then
             local config = getConfig(force)
             config.filter_search_results = event.element.state
@@ -743,5 +786,6 @@ remote.add_interface("auto_research", {
     queued_only = function(forcename, value) setQueuedOnly(game.forces[forcename], value) end,
     allow_switching = function(forcename, value) setAllowSwitching(game.forces[forcename], value) end,
     announce_completed = function(forcename, value) setAnnounceCompletedResearch(game.forces[forcename], value) end,
-    deprioritize_infinite_tech = function(forcename, value) setDeprioritizeInfiniteTech(game.forces[forcename], value) end
+    deprioritize_infinite_tech = function(forcename, value) setDeprioritizeInfiniteTech(game.forces[forcename], value) end,
+    announce_new_trigger_tech = function(forcename, value) setAnnounceNewTriggerTech(game.forces[forcename], value) end,
 })
