@@ -177,7 +177,7 @@ function isTriggerAvailable(force, tech, config)
             return false
         end
     end
-    if tech.prototype.research_trigger == nil
+    if tech.prototype.research_trigger == nil then
         return false
     end
     for _, deprioritized in pairs(config.deprioritized_techs) do
