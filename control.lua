@@ -137,6 +137,12 @@ function setAutoDetermineAllowedIngredients(force, enabled)
     end
     getConfig(force).auto_determine_allowed_ingredients = enabled
 
+    -- update GUI
+    for _, player in pairs(force.players) do
+        if player.gui.top.auto_research_gui then
+            gui.updateAllowedIngredientsList(player.gui.top.auto_research_gui.flow.allowed_ingredients, player, config)
+        end
+    end
     -- start new research
     startNextResearch(force)
 end
@@ -156,20 +162,20 @@ function getPretechs(tech)
     return pretechs
 end
 
-function isIngredientAllowed(force, ingredient, config)
+function isIngredientAllowed(force, ingredientname, config)
     if config.auto_determine_allowed_ingredients then
-        if ingredient.name == "automation-science-pack" then
+        if ingredientname == "automation-science-pack" then
             return true
         else
             for _, surface in pairs(game.surfaces) do
-                if force.get_item_production_statistics(surface).get_input_count(ingredient.name) > 0 then
+                if force.get_item_production_statistics(surface).get_input_count(ingredientname) > 0 then
                     return true
                 end
             end
             return false
         end
     else
-        return config.allowed_ingredients[ingredient.name]
+        return config.allowed_ingredients[ingredientname]
     end
 end
 
@@ -186,7 +192,7 @@ function canResearch(force, tech, config)
         return false
     end
     for _, ingredient in pairs(tech.research_unit_ingredients) do
-        if not isIngredientAllowed(force, ingredient, config) then
+        if not isIngredientAllowed(force, ingredient.name, config) then
             return false
         end
     end
@@ -589,7 +595,8 @@ gui = {
             counter = counter + 1
         end
         counter = 1
-        for ingredientname, allowed in pairs(config.allowed_ingredients) do
+        for ingredientname, _ in pairs(config.allowed_ingredients) do
+            local allowed = isIngredientAllowed(player.force, ingredientname, config)
             local flowname = "flow" .. math.floor(counter / 10) + 1
             local ingredientflow = flow[flowname]
             if not ingredientflow then
@@ -743,7 +750,7 @@ gui = {
                 end
                 if showtech and ingredients_filter then
                     for _, ingredient in pairs(tech.research_unit_ingredients) do
-                        if not isIngredientAllowed(player.force, ingredient, config) then
+                        if not isIngredientAllowed(player.force, ingredient.name, config) then
                             -- filter out techs that require disallowed ingredients (optional)
                             showtech = false
                         end
