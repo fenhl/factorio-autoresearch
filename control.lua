@@ -225,6 +225,16 @@ function startNextResearch(force, override_spam_detection)
         end
     end
 
+    -- announce any new trigger tech
+    if config.announce_new_trigger_tech then
+        for name, tech in pairs(force.technologies) do
+            if config.announced_trigger_techs[name] == nil and isTriggerAvailable(force, tech, config) then
+                force.print{"auto_research.announce_new_trigger_tech", tech.localised_name}
+                config.announced_trigger_techs[name] = true
+            end
+        end
+    end
+
     -- see if there are some techs we should research first
     local next_research = nil
     local least_effort = nil
@@ -302,15 +312,6 @@ function onResearchFinished(event)
                 level = (event.research.researched and event.research.level) or (event.research.level - 1)
             end
             force.print{"auto_research.announce_completed", event.research.localised_name, level}
-        end
-    end
-    -- announce new trigger tech
-    if config.announce_new_trigger_tech then
-        for name, tech in pairs(force.technologies) do
-            if config.announced_trigger_techs[name] == nil and isTriggerAvailable(force, tech, config) then
-                force.print{"auto_research.announce_new_trigger_tech", tech.localised_name}
-                config.announced_trigger_techs[name] = true
-            end
         end
     end
 
