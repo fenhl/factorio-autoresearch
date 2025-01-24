@@ -32,6 +32,9 @@ function getConfig(force, config_changed)
 
         -- Announce available trigger technologies
         setAnnounceNewTriggerTech(force, true)
+
+        -- Automatically determine available science packs
+        setAutoDetermineAllowedIngredients(force, true)
     end
 
     -- set research strategy
@@ -128,6 +131,16 @@ function setAnnounceNewTriggerTech(force, enabled)
     getConfig(force).announce_new_trigger_tech = enabled
 end
 
+function setAutoDetermineAllowedIngredients(force, enabled)
+    if not force then
+        return
+    end
+    getConfig(force).auto_determine_allowed_ingredients = enabled
+
+    -- start new research
+    startNextResearch(force)
+end
+
 function getPretechs(tech)
     local pretechs = {}
     pretechs[#pretechs + 1] = tech
@@ -143,6 +156,23 @@ function getPretechs(tech)
     return pretechs
 end
 
+function isIngredientAllowed(force, ingredient, config)
+    if config.auto_determine_allowed_ingredients then
+        if ingredient.name == "automation-science-pack" then
+            return true
+        else
+            for _, surface in pairs(game.surfaces) do
+                if force.get_item_production_statistics(surface).get_input_count(ingredient.name) > 0 then
+                    return true
+                end
+            end
+            return false
+        end
+    else
+        return config.allowed_ingredients[ingredient.name]
+    end
+end
+
 function canResearch(force, tech, config)
     if not tech or tech.researched or not tech.enabled or tech.prototype.hidden then
         return false
@@ -156,7 +186,7 @@ function canResearch(force, tech, config)
         return false
     end
     for _, ingredient in pairs(tech.research_unit_ingredients) do
-        if not config.allowed_ingredients[ingredient.name] then
+        if not isIngredientAllowed(force, ingredient, config) then
             return false
         end
     end
@@ -346,6 +376,7 @@ gui = {
             frameflow.add{type = "checkbox", name = "auto_research_announce_completed", caption = {"auto_research_gui.announce_completed"}, tooltip = {"auto_research_gui.announce_completed_tooltip"}, state = config.announce_completed or false}
             frameflow.add{type = "checkbox", name = "auto_research_deprioritize_infinite_tech", caption = {"auto_research_gui.deprioritize_infinite_tech"}, tooltip = {"auto_research_gui.deprioritize_infinite_tech_tooltip"}, state = config.deprioritize_infinite_tech or false}
             frameflow.add{type = "checkbox", name = "auto_research_announce_new_trigger_tech", caption = {"auto_research_gui.announce_new_trigger_tech"}, tooltip = {"auto_research_gui.announce_new_trigger_tech_tooltip"}, state = config.announce_new_trigger_tech or false}
+            frameflow.add{type = "checkbox", name = "auto_research_auto_determine_allowed_ingredients", caption = {"auto_research_gui.auto_determine_allowed_ingredients"}, tooltip = {"auto_research_gui.auto_determine_allowed_ingredients_tooltip"}, state = config.auto_determine_allowed_ingredients or false}
 
             -- research strategy
             frameflow.add{
@@ -480,6 +511,8 @@ gui = {
             setDeprioritizeInfiniteTech(force, event.element.state)
         elseif name == "auto_research_announce_new_trigger_tech" then
             setAnnounceNewTriggerTech(force, event.element.state)
+        elseif name == "auto_determine_allowed_ingredients" then
+            setAutoDetermineAllowedIngredients(force, event.element.state)
         elseif name == "auto_research_ingredients_filter_search_results" then
             local config = getConfig(force)
             config.filter_search_results = event.element.state
@@ -710,7 +743,7 @@ gui = {
                 end
                 if showtech and ingredients_filter then
                     for _, ingredient in pairs(tech.research_unit_ingredients) do
-                        if not config.allowed_ingredients[ingredient.name] then
+                        if not isIngredientAllowed(player.force, ingredient, config) then
                             -- filter out techs that require disallowed ingredients (optional)
                             showtech = false
                         end
@@ -789,4 +822,5 @@ remote.add_interface("auto_research", {
     announce_completed = function(forcename, value) setAnnounceCompletedResearch(game.forces[forcename], value) end,
     deprioritize_infinite_tech = function(forcename, value) setDeprioritizeInfiniteTech(game.forces[forcename], value) end,
     announce_new_trigger_tech = function(forcename, value) setAnnounceNewTriggerTech(game.forces[forcename], value) end,
+    auto_determine_allowed_ingredients = function(forcename, value) setAutoDetermineAllowedIngredients(game.forces[forcename], value) end,
 })
