@@ -178,6 +178,9 @@ function canResearch(force, tech, config)
             return false
         end
     end
+    if tech.name:find("productivity", 1, true) ~= nil and tech.name:find("mining-productivity", 1, true) == nil and tech.name:find("research-productivity", 1, true) == nil and tech.level > 30 then
+        return false
+    end
     return true
 end
 
